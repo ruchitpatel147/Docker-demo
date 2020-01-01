@@ -1,0 +1,238 @@
+set up aws
+ - aws configure
+
+serverless
+ - sls create -t aws-nodejs
+
+init package.json
+ - npm init -y
+
+install server-less dependency
+  -  npm i --save-dev serverless-offline
+
+set up serverless.yaml
+ - add plugin (serverless-offline)
+ - add stage(dev) into provider
+ - include - utils/**
+ - event (path and method)
+
+
+- call function
+  sls invoke local -f hello
+
+- start serverless
+  serverless offline
+- deploy
+  sls deploy
+
+- stag
+  sls deploy -s production -f hello
+
+- remove
+  sls remove -s dev
+
+
+- read logs
+  sls logs -f hello -s production --startTime 10m
+
+
+*******************DOCKERFILE************************
+https://docs.docker.com/get-started/part2/
+
+
+* Create dockerfile
+- touch Dockerfile
+
+- change dockerfile permission
+   - sudo chmod 666 /var/run/docker.sock
+
+---------------------------------------------------------
+
+----------------------------------------------------------
+   	FROM node:8
+
+	RUN mkdir -p /docker/test (create a directory)
+
+	WORKDIR /docker/test (use as workdire)
+
+	COPY package.json ./  (copy package.json)
+
+	RUN npm install //(RUN echo >> npm install)
+
+	COPY . ./  (copy full code into root)
+
+	EXPOSE 3000 (port number)
+
+	CMD ["node", "index.js"]  (start service)
+---------------------------------------------------------
+
+------------------------------------------------------------
+
+- build docker file
+  docker build .
+
+- docker run --name test -p 3000:3000 <any>:<expose port form dockerfile> <imageid> (will get using above command docker build .)
+
+* remove docker file
+ - docker rm test(name) // docker container rm -f <name>
+
+* list container
+  - docker ps
+
+---------------create mongodb container ---------------------------
+
+https://subscription.packtpub.com/book/big_data_and_business_intelligence/9781787126480/1/ch01lvl1sec18/running-mongodb-as-a-docker-container
+
+ - docker pull mongo  (for specific version => docker pull mongo:4.0.4)
+
+ * View images
+  - docker images
+
+  - docker run --name mongodb -p 27017-27019:27017-27019 mongo
+
+  - above command will start service then open new terminal and apply below command
+
+  - docker exec -it mongodb bash
+
+  - then it will take container id as current directory type mongo
+  - connected successfully
+  - show dbs (shows table) (<use collectionName>)
+  - hit query and verify the records
+
+
+ - docker ps -a (check all service)
+
+-----------------------------------------------------------------------
+
+***************************************eslint********************************************
+
+- npm i eslint
+
+package.json
+"lint": "./node_modules/.bin/eslint --ignore-path .dockerignore . *.js",
+
+- create `.eslintrc.json` file to define rules for lint
+````````````````````
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "rules": {
+    "array-bracket-spacing": ["error", "never"],
+    "no-console": ["warn"]
+  }
+}
+
+```````````````````
+
+
+************************************************************************************
+
+------------------------------------------------------------------------------------------
+
+***************************************test case********************************************
+- istanbul for coverage  (mocha and chai)
+
+package.json
+
+"test": "mocha 'test/**/*.js' && sleep 2 && ./node_modules/.bin/istanbul cover app/**/*.js"
+
+- npm run test
+
+
+
+*coverage
+ ```
+"scripts": {
+    "lint": "./node_modules/.bin/eslint --ignore-path .dockerignore . *.js",
+    "test": "mocha 'test/**/*.js'",
+    "coverage": "nyc --reporter=text npm test"
+  },
+  "nyc": {
+    "register": "babel-register",
+    "include": [
+      "**/*.js",
+      "/*.js"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/test/**",
+      "**/coverage/**"
+    ],
+    "all": true
+  },
+  "author": "",
+  "license": "MIT",
+```
+
+
+- For creating covergae dir with index file
+```
+"test": "nyc --reporter=lcov --reporter=text-lcov nyc mocha 'test/**/*.js'" <--reporter=text-lcov> create text file
+```
+*************************************************************************************
+
+--------------------------------------------------------------------------------
+
+*************************************winston logger*************************************
+
+- npm i winston --save-dev
+
+'use strict'
+let loggerFile;
+
+class logger {
+
+  setup(winston) {
+    loggerFile = winston.createLogger({
+      transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: 'info.log', level: 'info' }),
+        new winston.transports.File({ filename: 'error.log', level: 'error' })
+      ]
+    });
+  };
+
+  getContext() {
+    return loggerFile;
+  }
+};
+
+
+
+app.use((req,res,next) => {
+    let parsedUrl = Url.parse(req.url);
+    req.basePathName = parsedUrl.pathname;
+    let logMessage = req.method + ' request started for: ' + req.basePathName;
+    log.info(logMessage, {
+      method: req.method,
+      url: req.url
+    });
+    req.Logger = log;
+    return next();
+  })
+
+module.exports = logger;
+
+
+********************************************************************************************
+
+
+
+
+
+
+
+
+
+
+

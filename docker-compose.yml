@@ -1,0 +1,21 @@
+version: '3'
+services:
+  node_application:
+    container_name: node_demo
+    restart: always
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongo
+    environment: # Process environment variables
+      - MONGO_URL=mongodb://mongo:27017/monorepoDb
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - '27018:27017'
+    volumes:
+      - data-volume:/data/db # For Persist mongodb data after the container deleted
+volumes:
+  data-volume:
